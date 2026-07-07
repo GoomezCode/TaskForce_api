@@ -163,9 +163,3 @@ As tarefas são salvas automaticamente no arquivo `pathJson/task.json`, criado n
 ## 👤 Autor
 
 Desenvolvido por [**GoomezCode**](https://github.com/GoomezCode).
-
----
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Sinta-se livre para utilizá-lo, modificá-lo e compartilhá-lo.
