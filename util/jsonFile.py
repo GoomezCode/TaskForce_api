@@ -3,10 +3,12 @@ from fastapi import HTTPException
 import json
 import os
 
+diretorio = "pathJson"
 file = "pathJson/task.json"
 
 def readJson():
     if not os.path.exists(file): # Cria o arquivo caso não exista
+        os.mkdir(diretorio)
         with open(file, "w") as wArquivo:
             json.dump([], wArquivo)
 
