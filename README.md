@@ -1,6 +1,6 @@
 <h1 align="center"> 📝 TaskForce API</h1>
 
-API RESTful simples para gerenciamento de tarefas (to-do list), construída com **FastAPI** e persistência de dados em arquivo **JSON**.
+<p align="center"> API RESTful simples para gerenciamento de tarefas (to-do list), construída com <b>FastAPI</b> e persistência de dados em arquivo <b>JSON</b>. </p>
 
 <p align="center">
     <img src="https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white">
