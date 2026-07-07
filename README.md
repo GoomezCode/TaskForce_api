@@ -1,11 +1,13 @@
-# 📝 TaskForce API
+<h1 align="center"> 📝 TaskForce API</h1>
 
 API RESTful simples para gerenciamento de tarefas (to-do list), construída com **FastAPI** e persistência de dados em arquivo **JSON**.
 
-![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.139.0-009688?logo=fastapi&logoColor=white)
-![Uvicorn](https://img.shields.io/badge/Uvicorn-0.50.2-informational)
-![License](https://img.shields.io/badge/license-MIT-green)
+<p align="center">
+    <img src="https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white">
+    <img src="https://img.shields.io/badge/FastAPI-0.139.0-009688?logo=fastapi&logoColor=white">
+    <img src="https://img.shields.io/badge/Uvicorn-0.50.2-informational">
+    <img src="https://img.shields.io/badge/license-MIT-green">
+</p>
 
 ---
 
