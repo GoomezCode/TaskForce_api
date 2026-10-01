@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: taskforce-api
+    runtime: python
+    plan: free
+    branch: develop
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: TASKFORCE_ENV
+        value: production
+      - key: TASKFORCE_CORS_ORIGINS
+        value: "*"

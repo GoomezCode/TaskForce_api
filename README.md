@@ -2,34 +2,28 @@
 
 <p align="center"> API RESTful simples para gerenciamento de tarefas (to-do list), construída com <b>FastAPI</b> e persistência de dados em arquivo <b>JSON</b>. </p>
 
-<p align="center">
-    <img src="https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white">
-    <img src="https://img.shields.io/badge/FastAPI-0.139.0-009688?logo=fastapi&logoColor=white">
-    <img src="https://img.shields.io/badge/Uvicorn-0.50.2-informational">
-    <img src="https://img.shields.io/badge/license-MIT-green">
-</p>
-
 ---
 
 ## 📌 Sobre o projeto
 
-O **TaskForce API** é uma API desenvolvida para praticar os conceitos de **FastAPI**, oferecendo operações básicas de um CRUD de tarefas:
+O **TaskForce API** oferece um CRUD de tarefas:
 
 - Criar tarefas
-- Listar tarefas
+- Listar tarefas com busca, filtro e paginação
 - Marcar/desmarcar tarefas como concluídas
+- Editar o texto da tarefa
 - Deletar tarefas
 
-Os dados são armazenados localmente em um arquivo `task.json`, sem a necessidade de configurar um banco de dados externo — ideal para estudo e testes rápidos.
+Os dados são armazenados localmente em `storage/tasks.json`, sem banco externo.
 
 ---
 
 ## 🚀 Tecnologias utilizadas
 
 - [Python 3](https://www.python.org/)
-- [FastAPI](https://fastapi.tiangolo.com/) — framework web para construção da API
-- [Uvicorn](https://www.uvicorn.org/) — servidor ASGI
-- [Pydantic](https://docs.pydantic.dev/) — validação de dados
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [Uvicorn](https://www.uvicorn.org/)
+- [Pydantic](https://docs.pydantic.dev/)
 - Armazenamento em **JSON** (sem banco de dados)
 
 ---
@@ -38,14 +32,25 @@ Os dados são armazenados localmente em um arquivo `task.json`, sem a necessidad
 
 ```
 TaskForce_api/
-├── api/
-│   └── apiTask.py        # Rotas/endpoints da API
-├── classes/
-│   └── Classes.py        # Modelo (schema) da tarefa (Pydantic)
-├── util/
-│   └── jsonFile.py        # Lógica de leitura/escrita no arquivo JSON
-├── main.py                 # Ponto de entrada da aplicação
-├── requeriments.txt        # Dependências do projeto
+├── app/
+│   ├── main.py                 # Factory + app FastAPI (uvicorn app.main:app)
+│   ├── core/
+│   │   ├── config.py           # Settings via .env (TASKFORCE_*)
+│   │   └── exceptions.py       # Erros 404/409 + handlers
+│   ├── api/
+│   │   ├── dependencies.py     # Injeção do TaskService
+│   │   └── v1/routes/
+│   │       └── tasks.py        # Rotas /api/v1/tasks
+│   ├── schemas/
+│   │   └── task.py             # TaskCreate/TaskUpdate/Task/TaskList
+│   ├── services/
+│   │   └── task_service.py     # Regra de negócio
+│   └── repositories/
+│       └── json_task_repository.py # Persistência JSON atômica
+├── storage/                    # tasks.json (ignorado pelo git)
+├── tests/                      # pytest + TestClient
+├── requirements.txt
+├── .env.example
 └── README.md
 ```
 
@@ -53,112 +58,62 @@ TaskForce_api/
 
 ## ⚙️ Como executar o projeto
 
-### 1. Clone o repositório
-
 ```bash
-git clone https://github.com/GoomezCode/TaskForce_api.git
-cd TaskForce_api
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
 ```
 
-### 2. Crie e ative um ambiente virtual (opcional, mas recomendado)
+API em `http://localhost:8000` e docs em `http://localhost:8000/docs`.
 
-```bash
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# Linux/Mac
-source venv/bin/activate
-```
-
-### 3. Instale as dependências
-
-```bash
-pip install -r requeriments.txt
-```
-
-### 4. Execute a aplicação
-
-```bash
-python main.py
-```
-
-A API estará disponível em:
+Variáveis opcionais (ver `.env.example`):
 
 ```
-http://localhost:8000
-```
-
-A documentação interativa (Swagger UI) gerada automaticamente pelo FastAPI pode ser acessada em:
-
-```
-http://localhost:8000/docs
+TASKFORCE_STORAGE_PATH=storage/tasks.json
+TASKFORCE_CORS_ORIGINS=http://localhost:3000
 ```
 
 ---
 
 ## 📖 Endpoints da API
 
-| Método   | Rota                        | Descrição                                    |
-|----------|-----------------------------|-----------------------------------------------|
-| `GET`    | `/task/get`                 | Lista todas as tarefas cadastradas            |
-| `POST`   | `/task/create/{task}`       | Cria uma nova tarefa                          |
-| `PUT`    | `/task/put/marcar/{idTask}` | Marca/desmarca uma tarefa como concluída      |
-| `DELETE` | `/task/delete/{idTask}`     | Remove uma tarefa pelo ID                     |
+| Método   | Rota                          | Descrição                              |
+|----------|-------------------------------|----------------------------------------|
+| `GET`    | `/api/v1/tasks`               | Lista com `search,is_done,page,size`   |
+| `GET`    | `/api/v1/tasks/stats`         | Contadores total/done/pending          |
+| `POST`   | `/api/v1/tasks`               | Cria (`{"title": "..."}`) → 201        |
+| `GET`    | `/api/v1/tasks/{id}`          | Busca por ID                           |
+| `PATCH`  | `/api/v1/tasks/{id}/done`     | Alterna concluída                      |
+| `PATCH`  | `/api/v1/tasks/{id}`          | Edita `title` e/ou `done`              |
+| `DELETE` | `/api/v1/tasks/{id}`          | Remove → 204                           |
+| `GET`    | `/health`                     | Healthcheck                            |
 
-### Exemplo — Criar uma tarefa
+Exemplos:
 
-```http
-POST /task/create/Estudar%20FastAPI
-```
+```bash
+curl -X POST localhost:8000/api/v1/tasks \
+  -H 'Content-Type: application/json' \
+  -d '{"title": "Estudar FastAPI"}'
 
-### Exemplo — Listar tarefas
-
-```http
-GET /task/get
-```
-
-**Resposta:**
-```json
-[
-    {
-        "id": 1,
-        "tarefa": "Estudar FastAPI",
-        "feito": false,
-        "data": "06/07/26",
-        "hora": "14:32:10"
-    }
-]
-```
-
-### Exemplo — Marcar tarefa como concluída
-
-```http
-PUT /task/put/marcar/1
-```
-
-### Exemplo — Deletar tarefa
-
-```http
-DELETE /task/delete/1
+curl 'localhost:8000/api/v1/tasks?search=fastapi&page=1&size=10'
+curl -X PATCH localhost:8000/api/v1/tasks/1/done
+curl -X DELETE localhost:8000/api/v1/tasks/1 -i
 ```
 
 ---
 
 ## 💾 Persistência dos dados
 
-As tarefas são salvas automaticamente no arquivo `pathJson/task.json`, criado na primeira execução da API. Não é necessário configurar nenhum banco de dados.
+Arquivo `storage/tasks.json` criado na primeira execução. Escritas atômicas (`.tmp` + replace) e backup `.bak` se o JSON corromper.
 
 ---
 
-## 🛠️ Melhorias futuras
+## ✅ Testes
 
-- [ ] Migrar a persistência de dados para um banco de dados relacional (ex: SQLite/PostgreSQL)
-- [ ] Adicionar autenticação de usuários
-- [ ] Adicionar testes automatizados
-- [ ] Adicionar suporte a edição do texto da tarefa
-- [ ] Tratar melhor os erros de validação de entrada
+```bash
+pytest
+```
 
 ---
 
