@@ -1,3 +1,8 @@
 __pycache__/
+*.pyc
+.pytest_cache/
+.venv/
 .env
-pathJson/*
+storage/*.json
+storage/*.tmp
+storage/*.bak
